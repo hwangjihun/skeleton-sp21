@@ -106,13 +106,61 @@ public class Model extends Observable {
      *    value, then the leading two tiles in the direction of motion merge,
      *    and the trailing tile does not.
      * */
+
+    public int maxMoveTileUp(int row, int col, Tile currentTile, boolean[] mergedTiles) {
+        int targetRowIndex = -1;
+        for (int i = row + 1; i < this.board.size(); i++) {
+            // check if the above tiles are null
+            if (this.board.tile(col, i) == null) {
+                targetRowIndex = i;
+            } else {
+                if (this.board.tile(col, i).value() == currentTile.value() && !mergedTiles[i]) {
+                    targetRowIndex = i;
+                    mergedTiles[targetRowIndex] = true;
+                    this.score = this.score + (currentTile.value() * 2);
+                }
+                break;
+            }
+            // check if above tiles are the same value
+            // break to merge the first row it has the same value;
+            // have to track if the tile got merged before
+            // record the index that has gone through merging
+
+        }
+        return targetRowIndex;
+    }
+
+    public boolean processColumnBoard(int col) {
+        boolean changed = false;
+        boolean[] mergedTiles = new boolean[this.board.size()];
+        for (int r = this.board.size() - 2; r >= 0; r--) {
+            Tile currentTile = this.board.tile(col, r);
+            if (currentTile == null) {
+                continue;
+            } else {
+                int targetRowIndex = maxMoveTileUp(r, col, currentTile, mergedTiles);
+                if (targetRowIndex != -1) {
+                    this.board.move(col, targetRowIndex, currentTile);
+                    changed = true;
+                }
+            }
+        }
+        return changed;
+    }
+
     public boolean tilt(Side side) {
         boolean changed;
         changed = false;
-
+        this.board.setViewingPerspective(side);
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
+        for (int c = 0; c < this.board.size(); c++) {
+            if (processColumnBoard(c)) {
+                changed = true;
+            }
+        }
+        this.board.setViewingPerspective(Side.NORTH);
 
         checkGameOver();
         if (changed) {
@@ -136,8 +184,15 @@ public class Model extends Observable {
     /** Returns true if at least one space on the Board is empty.
      *  Empty spaces are stored as null.
      * */
+
     public static boolean emptySpaceExists(Board b) {
-        // TODO: Fill in this function.
+        for (int i = 0; i < b.size(); i++) {
+            for (int j = 0; j < b.size(); j++) {
+                if (b.tile(i, j) == null) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -148,6 +203,15 @@ public class Model extends Observable {
      */
     public static boolean maxTileExists(Board b) {
         // TODO: Fill in this function.
+        for (int i = 0; i < b.size(); i++) {
+            for (int j = 0; j < b.size(); j++) {
+                if (b.tile(i, j) != null) {
+                    if (b.tile(i, j).value() == MAX_PIECE) {
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
 
@@ -157,8 +221,42 @@ public class Model extends Observable {
      * 1. There is at least one empty space on the board.
      * 2. There are two adjacent tiles with the same value.
      */
+
+    public static boolean checkAdjacentTile(Board b, int row, int col) {
+        // row should be fixed, just iterate over col
+        int currentTileValue = b.tile(col, row).value();
+
+        for (int i = -1; i <= 1; i++) {
+            // skip over the currentTile
+            if (i == 0) {
+                continue;
+            }
+            if (i + col < 0 || i + col > b.size() - 1 || i + row < 0 || i + row > b.size() - 1) {
+                continue;
+            }
+            // Left Right
+            if (b.tile(col+i, row).value() == currentTileValue) {
+                return true;
+            }
+            // Up Down
+            if (b.tile(col, row + i).value() == currentTileValue) {
+                return true;
+            }
+        }
+        return false;
+    }
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
+        if (Model.emptySpaceExists(b)) {
+            return true;
+        }
+        for (int i = 0; i < b.size(); i++) {
+            for (int j = 0; j < b.size(); j++) {
+                if (checkAdjacentTile(b, i, j)) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
