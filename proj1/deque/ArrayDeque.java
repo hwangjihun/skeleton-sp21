@@ -15,14 +15,10 @@ public class ArrayDeque<T> {
     }
 
     private void resize(int capacity) {
-        T[] newCircularArr = (T[]) new Object[capacity];
 
     }
 
     public void addFirst(T item) {
-        if (this.items.length == size) {
-            this.resize(size * 2);
-        }
         this.items[nextFirst] = item;
         this.size += 1;
         // Useful technique to know ** (instead of using if condition)
@@ -30,9 +26,6 @@ public class ArrayDeque<T> {
     }
 
     public void addLast(T item) {
-        if (this.items.length == size) {
-            this.resize(size * 2);
-        }
         this.items[nextLast] = item;
         this.size += 1;
         // Useful technique to know ** (instead of using if condition)
@@ -48,11 +41,11 @@ public class ArrayDeque<T> {
     }
 
     public void printDeque() {
-        for (int i = nextFirst + 1; i < nextFirst + 1 + size; i++) {
-            int printIdx = i % this.items.length;
-            System.out.print(this.items[printIdx] + " ");
-            System.out.println();
+        for (int i = 0; i < this.size(); i++) {
+            int idx = (this.nextFirst + 1 + i) % items.length;
+            System.out.print(this.items[idx] + " ");
         }
+        System.out.println();
     }
 
     public T removeFirst() {
@@ -80,9 +73,10 @@ public class ArrayDeque<T> {
     }
 
     public T get(int index) {
-        if (this.size() == 0 || index < 0 || index > this.items.length - 1) {
+        if (index < 0 || index > this.size - 1) {
             return null;
         }
-        return this.items[index];
+        int realIndex = (this.nextFirst + 1 + index) % this.items.length;
+        return this.items[realIndex];
     }
 }
