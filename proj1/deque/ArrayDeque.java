@@ -80,6 +80,9 @@ public class ArrayDeque<T> {
     }
 
     public T get(int index) {
+        if (this.size() == 0 || index < 0 || index > this.items.length - 1) {
+            return null;
+        }
         return this.items[index];
     }
 }
