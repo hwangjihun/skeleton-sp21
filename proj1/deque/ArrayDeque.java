@@ -6,7 +6,6 @@ public class ArrayDeque<T> {
     private int nextFirst;
     private int nextLast;
 
-    /* Creates an empty array deque*/
     public ArrayDeque() {
         this.items = (T[]) new Object[8];
         this.size = 0;
@@ -14,26 +13,26 @@ public class ArrayDeque<T> {
         this.nextLast = 5;
     }
 
-    private void resize(int capacity) {
-
+    public void addLast(T item) {
+        if (this.items.length == this.size) {
+            resize(this.items.length * 2);
+        }
+        this.items[this.nextLast] = item;
+        this.nextLast = (this.nextLast + 1) % this.items.length;
+        this.size += 1;
     }
 
     public void addFirst(T item) {
-        this.items[nextFirst] = item;
-        this.size += 1;
-        // Useful technique to know ** (instead of using if condition)
+        if (this.items.length == this.size) {
+            resize(this.items.length * 2);
+        }
+        this.items[this.nextFirst] = item;
         this.nextFirst = (this.nextFirst - 1 + this.items.length) % this.items.length;
-    }
-
-    public void addLast(T item) {
-        this.items[nextLast] = item;
         this.size += 1;
-        // Useful technique to know ** (instead of using if condition)
-        this.nextLast = (this.nextLast + 1) % this.items.length;
     }
 
     public boolean isEmpty() {
-        return this.size() == 0;
+        return this.size == 0;
     }
 
     public int size() {
@@ -41,42 +40,73 @@ public class ArrayDeque<T> {
     }
 
     public void printDeque() {
-        for (int i = 0; i < this.size(); i++) {
-            int idx = (this.nextFirst + 1 + i) % items.length;
-            System.out.print(this.items[idx] + " ");
+        int startIdx = this.nextFirst + 1;
+        int endIdx = startIdx + this.size;
+        for (int i = startIdx; i < endIdx; i++) {
+            System.out.print(this.items[i % this.items.length] + " ");
         }
         System.out.println();
     }
 
     public T removeFirst() {
-        if (this.size() == 0) {
+        if (this.size == 0) {
             return null;
         }
-        int firstIdx = (this.nextFirst + 1) % this.items.length;
-        T firstItem = this.items[firstIdx];
-        this.items[firstIdx] = null;
+        resizeDown();
+        int idxToRemove = (this.nextFirst + 1) % this.items.length;
+        T itemToRemove = this.items[idxToRemove];
+        this.items[idxToRemove] = null;
         this.size -= 1;
-        this.nextFirst = firstIdx;
-        return firstItem;
+        this.nextFirst = idxToRemove;
+        return itemToRemove;
     }
 
     public T removeLast() {
-        if (this.size() == 0) {
+        if (this.size == 0) {
             return null;
         }
-        int lastIdx = (this.nextLast - 1 + this.items.length) % this.items.length;
-        T lastItem = this.items[lastIdx];
-        this.items[lastIdx] = null;
+        resizeDown();
+        int idxToRemove = (this.nextLast - 1 + this.items.length) % this.items.length;
+        T itemToRemove = this.items[idxToRemove];
+        this.items[idxToRemove] = null;
         this.size -= 1;
-        this.nextLast = lastIdx;
-        return lastItem;
+        this.nextLast = idxToRemove;
+        return itemToRemove;
     }
 
     public T get(int index) {
-        if (index < 0 || index > this.size - 1) {
+        if (index < 0 || index >= this.size) {
             return null;
         }
-        int realIndex = (this.nextFirst + 1 + index) % this.items.length;
-        return this.items[realIndex];
+        int realIdx = ((this.nextFirst + 1) + index) % this.items.length;
+        return items[realIdx];
     }
+
+    private void resize(int capacity) {
+        T[] newArr = (T[]) new Object[capacity];
+        for (int i = 0; i < this.size; i++) {
+            newArr[i] = this.get(i);
+        }
+        this.items = newArr;
+        this.nextFirst = capacity - 1;
+        this.nextLast = this.size;
+    }
+
+    private void resizeDown() {
+        if (this.items.length >= 16) {
+            double usageRatio = (double) this.size / this.items.length;
+            if (usageRatio < 0.25) {
+                resize(this.items.length / 2);
+            }
+        }
+    }
+    /*
+    (we can implement this after lecture 11)
+    public Iterator<T> iterator() {
+
+    }
+
+    public boolean equals(Object o) {
+    }
+    */
 }

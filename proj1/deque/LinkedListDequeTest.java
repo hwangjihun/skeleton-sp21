@@ -1,5 +1,6 @@
 package deque;
 
+import edu.princeton.cs.algs4.StdRandom;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -118,5 +119,48 @@ public class LinkedListDequeTest {
             assertEquals("Should have the same value", i, (double) lld1.removeLast(), 0.0);
         }
 
+    }
+
+    @Test
+    /* Get an element given an index; check if the returned value is valid. */
+    public void getTest() {
+        LinkedListDeque<Integer> lld1 = new LinkedListDeque<>();
+        for (int i = 0; i < 1000; i++) {
+            lld1.addLast(i);
+        }
+        assertNull(lld1.get(1000));
+        assertEquals(2, (int) lld1.get(2));
+        assertEquals(2, (int) lld1.getRecursive(2));
+    }
+
+
+    @Test
+    public void randomizedTest() {
+        LinkedListDeque<Integer> L = new LinkedListDeque<>();
+        int N = 100000;
+        for (int i = 0; i < N; i += 1) {
+            int operationNumber = StdRandom.uniform(0, 5);
+            if (operationNumber == 0) {
+                int randVal = StdRandom.uniform(0, 100);
+                L.addFirst(randVal);
+                System.out.println("addFirst: " + randVal);
+            } else if (operationNumber == 1) {
+                int randVal = StdRandom.uniform(0, 100);
+                L.addLast(randVal);
+                System.out.println("addLast: " + randVal);
+            }
+            else if (operationNumber == 2) {
+                int size = L.size();
+                System.out.println("size: "+ size);
+            } else if (operationNumber == 3) {
+                if (!L.isEmpty()) {
+                    System.out.println("removeFirst: " + L.removeFirst());
+                }
+            } else {
+                if (!L.isEmpty()) {
+                    System.out.println("removeLast: " + L.removeLast());
+                }
+            }
+        }
     }
 }

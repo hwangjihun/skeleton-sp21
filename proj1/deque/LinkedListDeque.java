@@ -1,10 +1,9 @@
 package deque;
 
 public class LinkedListDeque<T> {
-
     private class Node {
-        public Node prev;
         public T item;
+        public Node prev;
         public Node next;
 
         public Node(Node prev, T item, Node next) {
@@ -17,7 +16,8 @@ public class LinkedListDeque<T> {
     private Node sentinel;
     private int size;
 
-    /** Creates an empty LinkedListDeque. */
+    /* Create an empty LinkedListDeque (only contains a sentinel node)
+    * In this case, my sentinel node item value will just be null*/
     public LinkedListDeque() {
         this.sentinel = new Node(null, null, null);
         this.sentinel.prev = this.sentinel;
@@ -25,21 +25,10 @@ public class LinkedListDeque<T> {
         this.size = 0;
     }
 
-    public LinkedListDeque(T item) {
-        this.sentinel = new Node(null, null, null);
-        this.sentinel.prev = this.sentinel;
-        this.sentinel.next = this.sentinel;
-
-        Node firstNode = new Node(this.sentinel, item, this.sentinel);
-        this.sentinel.next = firstNode;
-        this.sentinel.prev = firstNode;
-        this.size = 1;
-    }
-
     public void addFirst(T item) {
         Node nodeToAdd = new Node(this.sentinel, item, this.sentinel.next);
-        this.sentinel.next.prev = nodeToAdd;
         this.sentinel.next = nodeToAdd;
+        this.sentinel.next.prev = nodeToAdd;
         this.size += 1;
     }
 
@@ -51,7 +40,7 @@ public class LinkedListDeque<T> {
     }
 
     public boolean isEmpty() {
-        return this.size() == 0;
+        return this.size == 0;
     }
 
     public int size() {
@@ -59,18 +48,16 @@ public class LinkedListDeque<T> {
     }
 
     public void printDeque() {
-        // if the node of next points to a sentinel, then
-        // break the loop.
-        Node L = this.sentinel.next;
-        for (int i = 0; i < this.size(); i++) {
-            System.out.print(L.item + " ");
-            L = L.next;
+        Node currentNode = this.sentinel.next;
+        for (int i = 0; i < this.size; i++) {
+            System.out.print(currentNode.item + " ");
+            currentNode = currentNode.next;
         }
         System.out.println();
     }
 
     public T removeFirst() {
-        if (this.size() == 0) {
+        if (this.size == 0) {
             return null;
         }
         T firstItem = this.sentinel.next.item;
@@ -81,7 +68,7 @@ public class LinkedListDeque<T> {
     }
 
     public T removeLast() {
-        if (this.size() == 0) {
+        if (this.size == 0) {
             return null;
         }
         T lastItem = this.sentinel.prev.item;
@@ -92,15 +79,38 @@ public class LinkedListDeque<T> {
     }
 
     public T get(int index) {
-        if (this.size() == 0) {
+        if (index < 0 || index >= this.size) {
             return null;
         }
-        Node L = this.sentinel.next;
-        T item = null;
-        for (int i = 0; i < index + 1; i++) {
-            item = L.item;
-            L = L.next;
+        Node currentNode = this.sentinel.next;
+        for (int i = 0; i < index; i += 1) {
+            currentNode = currentNode.next;
         }
-        return item;
+        return currentNode.item;
     }
+
+    private T getRecursive(int index, Node currentNode) {
+        if (index == 0) {
+            return currentNode.item;
+        }
+        return getRecursive(index - 1, currentNode.next);
+    }
+
+    public T getRecursive(int index) {
+        if (index < 0 || index >= this.size) {
+            return null;
+        } else {
+            return getRecursive(index, this.sentinel.next);
+        }
+    }
+
+    /*
+    (we can implement this after lecture 11)
+    public Iterator<T> iterator() {
+
+    }
+
+    public boolean equals(Object o) {
+    }
+    */
 }
